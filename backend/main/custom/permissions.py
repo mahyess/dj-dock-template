@@ -30,40 +30,6 @@ class ActionBasedPermission(AllowAny):
         return False
 
 
-class IsCustomer(permissions.BasePermission):
-    """
-    Allows access only to customer.
-    """
-
-    def has_permission(self, request, view):
-        is_permitted = False
-        if request.user and request.user.is_authenticated:
-            if request.user.is_superuser:
-                is_permitted = True
-            elif hasattr(request.user, "customer_profile"):
-                if request.user.customer_profile.is_verified:
-                    is_permitted = True
-
-        return is_permitted
-
-
-class IsDriver(permissions.BasePermission):
-    """
-    Allows access only to Driver.
-    """
-
-    def has_permission(self, request, view):
-        is_permitted = False
-        if request.user and request.user.is_authenticated:
-            if request.user.is_superuser:
-                is_permitted = True
-            elif hasattr(request.user, "driver_profile"):
-                if request.user.driver_profile.is_verified:
-                    is_permitted = True
-
-        return is_permitted
-
-
 class IsPosterOrReadOnly(permissions.BasePermission):
     """
     Object-level permission to only allow owners of an object to edit it.
