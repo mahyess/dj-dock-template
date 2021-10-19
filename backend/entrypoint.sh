@@ -1,5 +1,6 @@
 #!/bin/sh
 
+echo "before checking db"
 until nc -z "$SQL_HOST" "$SQL_PORT"; do
   echo "Waiting for db..."
   sleep 1
