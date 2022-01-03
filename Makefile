@@ -5,6 +5,12 @@ THIS_FILE := $(lastword $(MAKEFILE_LIST))
 help: ## helps
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
+setup: ## setup
+	@echo "setup init"
+	@cp -R -u -p ./backend/.env.template ./backend/.env
+	@make build
+	@echo "setup complete"
+
 makemigrations: ## Create Django Migration files
 	docker-compose exec backend python manage.py makemigrations $(c)
 
