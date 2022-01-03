@@ -1,4 +1,4 @@
-from decouple import config
+from .base import env
 
 ALLOWED_HOSTS = ["*"]
 
@@ -7,9 +7,9 @@ ALLOWED_HOSTS = ["*"]
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("DATABASE_NAME"),
-        "USER": config("DATABASE_USER"),
-        "PASSWORD": config("DATABASE_PASSWORD"),
+        "NAME": env("DATABASE_NAME"),
+        "USER": env("DATABASE_USER"),
+        "PASSWORD": env("DATABASE_PASSWORD"),
         "HOST": "db",
         "PORT": 5432,
     }
