@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "fcm_django",
     "drf_yasg",
-    "knox",
     "users.apps.UserConfig",
     "admin_panel",
 ]
@@ -91,9 +90,13 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ("knox.auth.TokenAuthentication",),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
     "DATETIME_FORMAT": "%m/%d/%Y %H:%M:%S",
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 REST_KNOX = {"TOKEN_TTL": None}  # tokens never expire

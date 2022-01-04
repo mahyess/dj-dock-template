@@ -1,14 +1,13 @@
 from django.db import transaction
 from fcm_django.models import FCMDevice
-from knox.models import AuthToken
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import MultiPartParser, FileUploadParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from main.custom.permissions import IsDriver, IsCustomer
 from main.custom.viewsets import ContextModelViewSet
 from .models import Customer, Driver, User
 from .serializers import (
@@ -91,23 +90,28 @@ class RegisterAPI(generics.GenericAPIView):
             if password_serializer.is_valid():
                 user.set_password(password_serializer.data["password"])
                 user.save()
+            else:
+                raise ValidationError(password_serializer.errors)
 
-            verification_request(request, user)
+            #verification_request(request, user)
 
-            # request.data._mutable = True
+            request.data._mutable = True
             fcm_device_id = request.data.pop('fcm_id', None)
             fcm_device_type = request.data.pop('device_type', None)
 
             if fcm_device_id and fcm_device_type:
                 create_fcm_device(user, fcm_device_id, fcm_device_type)
-            # request.data._mutable = False
+            request.data._mutable = False
+
+            refresh = RefreshToken.for_user(user)
 
             return Response(
                 {
                     "user": UserSerializer(
                         user, context=self.get_serializer_context()
                     ).data,
-                    "token": AuthToken.objects.create(user)[1],
+                    "access_token": str(refresh.access_token),
+                    "refresh_token": str(refresh),
                 }
             )
 
@@ -132,12 +136,15 @@ class LoginAPI(generics.GenericAPIView):
         if hasattr(request.data, "_mutable"):
             request.data._mutable = False
 
+        refresh = RefreshToken.for_user(user)
+
         return Response(
             {
                 "user": UserSerializer(
                     user, context=self.get_serializer_context()
                 ).data,
-                "token": AuthToken.objects.create(user)[1],
+                "access_token": str(refresh.access_token),
+                "refresh_token": str(refresh),
             }
         )
 
@@ -169,7 +176,7 @@ class UserViewset(ContextModelViewSet):
 
 
 class DriverViewset(ContextModelViewSet):
-    permission_classes = [IsDriver]
+    permission_classes = []
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
     parser_classes = (MultiPartParser, FileUploadParser)
@@ -179,7 +186,6 @@ class DriverViewset(ContextModelViewSet):
 
 
 class CustomerViewset(ContextModelViewSet):
-    permission_classes = [IsCustomer]
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
 
