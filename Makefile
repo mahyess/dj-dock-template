@@ -1,4 +1,4 @@
-include .env
+-include .env
 export DOMAIN
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
@@ -11,6 +11,7 @@ help: ## helps
 setup: ## setup
 	@echo "setup init"
 	@cp -R -u -p ./backend/.env.template ./backend/.env
+	@if ! [ -e "./.env" ]; then touch ./.env; echo "DOMAIN=$(domain)" >> ./.env; fi
 	@make build
 	@echo "setup complete"
 
