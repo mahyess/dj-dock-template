@@ -1,3 +1,6 @@
+include .env
+export DOMAIN
+
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 .PHONY: help build up start down destroy stop restart logs logs-api ps login-backend login-db db-shell makemigrations migrate
 .DEFAULT_GOAL := help
@@ -59,3 +62,6 @@ login-backend: ## Login to Django app in bash shell
 
 db-shell: ## Login to DB in bash shell as postgres user
 	docker-compose -f docker-compose.yml exec db psql -Upostgres
+
+install-ssl: ## Install SSL certificate
+	docker-compose -f docker-compose.prod.yml run --rm certbot certonly --server https://acme-v02.api.letsencrypt.org/directory --manual --preferred-challenges dns -d $$DOMAIN -d *.$$DOMAIN
